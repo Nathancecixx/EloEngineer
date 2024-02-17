@@ -1,0 +1,84 @@
+"""
++------------------------------------------------------------+
+| * Squad Builder is a discord bot written in python which * |
+| * adds easy squad formation features to a server.        * |
+|                                                            |
+| * Squad_Builder                                          * |
+| * fall 23 - Nathan Ceci                                  * |
++------------------------------------------------------------+
+"""
+
+import discord
+from discord.utils import get
+from discord.ext import commands
+import asyncio
+
+
+class General(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+        self._last_member = None
+
+    @commands.Cog.listener()
+    async def on_member_join(self, member):
+        channel = member.guild.system_channel
+        if channel is not None:
+            await channel.send(f'Hey {member.mention}, Welcome to {member.guild.name}.')
+        else:
+            channel = await member.guild.create_text_channel("Welcome!")
+            await channel.send(f'Hey {member.mention}, Welcome to {member.guild.name}.')
+
+    @commands.Cog.listener()
+    async def on_member_remove(self, member):
+        channel = get(member.guild.text_channels, name="losers-list")
+        if channel is None:
+            channel = await member.guild.create_text_channel('losers-list')
+
+        await channel.send(f"{member.name} has become a loser...")
+
+    # TODO
+    @commands.command()
+    async def info(self, ctx):
+        """Prints details about this server"""
+        owner = str(ctx.guild.owner)
+        guild_id = str(ctx.guild.id)
+        member_count = str(ctx.guild.member_count)
+        icon = ctx.guild.icon.url
+        desc = ctx.guild.description
+
+        embed = discord.Embed(
+            title=ctx.guild.name + " Server Information",
+            description=desc,
+            color=discord.Color.blue()
+        )
+        embed.set_thumbnail(url=icon)
+        embed.add_field(name="Owner", value=owner, inline=True)
+        embed.add_field(name="Server ID", value=guild_id, inline=True)
+        embed.add_field(name="Member Count", value=member_count, inline=True)
+
+        guild = ctx.guild
+        roles = [role for role in guild.roles if role != ctx.guild.default_role]
+        embed2 = discord.Embed(title="Server Roles", description=f" ".join([role.mention for role in roles]))
+
+        await ctx.send(embed=embed)
+        await ctx.send(embed=embed2)
+
+    @commands.command()
+    async def truth(self, ctx, *, member: discord.Member = None):
+        """"Tells goose the truth"""
+        member = member or ctx.author
+        await ctx.send(f'Yes you are right {member.name}, goose is kinda gay...')
+
+    @commands.command()
+    async def hello(self, ctx, *, member: discord.Member = None):
+        """Says hello"""
+        member = member or ctx.author
+        if self._last_member is None or self._last_member.id != member.id:
+            await ctx.send(f'Hello {member.name}~')
+        else:
+            await ctx.send(f'Hello {member.name}... This feels familiar.')
+        self._last_member = member
+
+
+async def setup(client):
+    await client.add_cog(General(client))
