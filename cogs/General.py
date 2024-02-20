@@ -37,13 +37,11 @@ class General(commands.Cog):
         await channel.send(f"{member.name} has become a loser...")
 
     # TODO
-    @commands.command()
+    @commands.command(name='info', help='Prints details about the server')
     async def info(self, ctx):
-        """Prints details about this server"""
         owner = str(ctx.guild.owner)
         guild_id = str(ctx.guild.id)
         member_count = str(ctx.guild.member_count)
-        icon = ctx.guild.icon.url
         desc = ctx.guild.description
 
         embed = discord.Embed(
@@ -51,7 +49,9 @@ class General(commands.Cog):
             description=desc,
             color=discord.Color.blue()
         )
-        embed.set_thumbnail(url=icon)
+        if ctx.guild.icon:
+            embed.set_thumbnail(url=ctx.guild.icon.url)
+
         embed.add_field(name="Owner", value=owner, inline=True)
         embed.add_field(name="Server ID", value=guild_id, inline=True)
         embed.add_field(name="Member Count", value=member_count, inline=True)
@@ -63,21 +63,14 @@ class General(commands.Cog):
         await ctx.send(embed=embed)
         await ctx.send(embed=embed2)
 
-    @commands.command()
-    async def truth(self, ctx, *, member: discord.Member = None):
-        """"Tells goose the truth"""
-        member = member or ctx.author
-        await ctx.send(f'Yes you are right {member.name}, goose is kinda gay...')
-
-    @commands.command()
-    async def hello(self, ctx, *, member: discord.Member = None):
-        """Says hello"""
-        member = member or ctx.author
-        if self._last_member is None or self._last_member.id != member.id:
-            await ctx.send(f'Hello {member.name}~')
+    @commands.command(name='coinflip', help='Generates 50/50 coin flip in chat')
+    async def coinflip(self, ctx):
+        import random
+        result = random.randint(0, 1)
+        if result:
+            await ctx.send('Heads')
         else:
-            await ctx.send(f'Hello {member.name}... This feels familiar.')
-        self._last_member = member
+            await ctx.send('Tails')
 
 
 async def setup(client):
