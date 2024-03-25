@@ -126,8 +126,6 @@ class SquadBuilder(commands.Cog):
             game_title = f'{game}, {size} Stack'
             await self.create_squad(game_title, ctx.channel, size, discord.Color.blurple())
 
-    """
-    
     # Optional functionality built specifically for my server
     
     @commands.Cog.listener()
@@ -139,7 +137,6 @@ class SquadBuilder(commands.Cog):
             await self.create_squad("Rainbow Six Siege", message.channel, 5, discord.Color.yellow())
         elif message.content.startswith('<@&1206000241053138964>'):
             await self.create_squad("League Of Legends", message.channel, 5, discord.Color.green())
-    """
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
